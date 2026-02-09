@@ -36,6 +36,7 @@ namespace ParkhausRepo.Services
             await _database.CreateTableAsync<Car>();
             await _database.CreateTableAsync<ParkingLot>();
             await _database.CreateTableAsync<ParkingSpace>();
+            await CreateParkingLotAsync();
         }
 
 
@@ -49,7 +50,7 @@ namespace ParkhausRepo.Services
                 var parkingLot = new ParkingLot
                 {
                     Name = "Evan's Parking Lot",
-                    Adress = "Andreas Heusler-Strasse 41",
+                    Adress = "Andreas Heusler-Strasse, 41",
                     Floors = 4,
                     TotalSpaces = 80,
                     OccupiedSpaces = 0,
@@ -60,20 +61,53 @@ namespace ParkhausRepo.Services
             }
         }
 
-        private async Task<ParkingLot> GetParkingLotAsync()
+        public async Task<ParkingLot> GetParkingLotAsync()
         {
             return await _database.Table<ParkingLot>().FirstOrDefaultAsync(); //Gets the first paring lot, there is only one so it works
         }
 
-        private async Task UpdateParkingLotAsync(ParkingLot parkingLot)
+        public async Task UpdateParkingLotAsync(ParkingLot parkingLot)
         {
             await _database.UpdateAsync(parkingLot);
         }
 
+        //Parking Spaces corresponding Database functions
 
+        public async Task <List<ParkingSpace>> GetAllParkingSpacesAsync()
+        {
+            return await _database.Table<ParkingSpace>().ToListAsync();
+        }
+
+        public async Task<ParkingSpace> GetParkingSpaceAsync(int id)
+        {
+            return await _database.Table<ParkingSpace>().Where(s => s.ID == id).FirstOrDefaultAsync();
+        }
+
+        public async Task<ParkingSpace> GetAvailableParkingSpaceAsync()
+        {
+            return await _database.Table<ParkingSpace>().Where(s => !s.IsOccupied).FirstOrDefaultAsync();
+        }
+
+        public async Task<int> UpdateParkingSpaceAsync(ParkingSpace parkingSpace)
+        {
+            return await _database.UpdateAsync(parkingSpace);
+        }
 
         //All Car correspodning Database functions
 
+        public async Task<List<Car>> GetAllCarsAsync()
+        {
+            return await _database.Table<Car>().ToListAsync();
+        }
 
+        public async Task<Car> GetCarAsync(int id)
+        {
+            return await _database.Table<Car>().Where(c => c.ID == id).FirstOrDefaultAsync();
+        }
+
+        public async Task<int> UpdateCarAsync(Car car)
+        {
+            return await _database.UpdateAsync(car);
+        }
     }
 }
