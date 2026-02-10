@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ParkhausRepo.ViewModels
+namespace ParkhausRepo.Controllers
 {
     internal class MapViewModel
     {

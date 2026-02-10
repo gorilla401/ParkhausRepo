@@ -56,7 +56,8 @@ namespace ParkhausRepo.Services
                     OccupiedSpaces = 0,
                     AvailableSpaces = 80,
                     PricePerMinute = 0.05f,
-                    IsOpen = true };
+                    IsOpen = true
+                };
                 await _database.InsertAsync(parkingLot);
             }
         }
@@ -73,7 +74,7 @@ namespace ParkhausRepo.Services
 
         //Parking Spaces corresponding Database functions
 
-        public async Task <List<ParkingSpace>> GetAllParkingSpacesAsync()
+        public async Task<List<ParkingSpace>> GetAllParkingSpacesAsync()
         {
             return await _database.Table<ParkingSpace>().ToListAsync();
         }
@@ -108,6 +109,16 @@ namespace ParkhausRepo.Services
         public async Task<int> UpdateCarAsync(Car car)
         {
             return await _database.UpdateAsync(car);
+        }
+
+        public async Task<int> InsertCarAsync(Car car)
+        {
+            return await _database.InsertAsync(car);
+        }
+
+        public async Task<int> DeleteCarAsync(Car car)
+        {
+            return await _database.DeleteAsync(car);
         }
     }
 }

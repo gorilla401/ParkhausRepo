@@ -7,7 +7,6 @@ namespace ParkhausRepo.Models
 {
     public class Car
     {
-
         [PrimaryKey, AutoIncrement]
         public int ID { get; set; }
 
@@ -22,5 +21,7 @@ namespace ParkhausRepo.Models
         public int? CurrentParkingSpace { get; set; }
 
         public int? CurrentParkingFloor { get; set; }
+
+        public int ParkingDuration { get; set; }
     }
 }
