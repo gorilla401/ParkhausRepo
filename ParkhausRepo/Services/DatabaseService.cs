@@ -79,6 +79,11 @@ namespace ParkhausRepo.Services
             return await _database.Table<ParkingSpace>().ToListAsync();
         }
 
+        public async Task<ParkingSpace> GetParkingSpaceByID(int id)
+        {
+            var space = await _database.Table<ParkingSpace>().Where(s => s.ID == id).FirstOrDefaultAsync();
+            return space;
+        }
         public async Task<ParkingSpace> GetParkingSpaceAsync(int id)
         {
             return await _database.Table<ParkingSpace>().Where(s => s.ID == id).FirstOrDefaultAsync();
