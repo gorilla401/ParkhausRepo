@@ -2,21 +2,20 @@
 using CommunityToolkit.Mvvm.Input;
 using ParkhausRepo.Services;
 using ParkhausRepo.Models;
-using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 using ParkhausRepo.Entities;
+using System.Collections.ObjectModel;
 
 namespace ParkhausRepo.Controllers
 {
-    internal partial class MainViewModel :ObservableObject
+    public partial class MainViewModel : ObservableObject
     {
-        private readonly DatabaseService _databaseService;
+        private readonly DatabaseService _databaseService = DatabaseService.Instance;
 
         [ObservableProperty]
         private ParkingLot? _parkingLot;
 
         [ObservableProperty]
-        private ObservableCollection<Car> _cars;
+        private ObservableCollection<Car> _cars = new();
 
         [ObservableProperty]
         private int _totalSpaces;
@@ -27,21 +26,22 @@ namespace ParkhausRepo.Controllers
         [ObservableProperty]
         private int _occupiedSpaces;
 
-        private string _message = "";
+        [ObservableProperty]
+        private string _message = string.Empty;
 
-        public 
-        private async Task LoadDataAsync() 
+        [RelayCommand]
+        private async Task LoadAsync()
         {
             try
             {
-                _message = "Now loading Data";
-                ParkingLot = _databaseService.GetParkingLotAsync().Result;
-                Cars = new ObservableCollection<Car>(_databaseService.GetAllCarsAsync().Result);
+                _message = "Data successfully loaded";
+                ParkingLot = await _databaseService.GetParkingLotAsync();
+                Cars = new ObservableCollection<Car>(await _databaseService.GetAllCarsAsync());
                 TotalSpaces = ParkingLot?.TotalSpaces ?? 0;
                 OccupiedSpaces = ParkingLot?.OccupiedSpaces ?? 0;
                 AvailableSpaces = TotalSpaces - OccupiedSpaces;
             }
-            catch 
+            catch
             {
                 _message = "Failed to load data";
             }

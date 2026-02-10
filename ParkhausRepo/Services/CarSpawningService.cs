@@ -1,8 +1,4 @@
-﻿using ObjCRuntime;
-using ParkhausRepo.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using ParkhausRepo.Models;
 
 namespace ParkhausRepo.Services
 {
@@ -26,7 +22,7 @@ namespace ParkhausRepo.Services
         public void StartSpawning(int minTime = 7, int maxTime = 18)
             {
             int spawnTime = _random.Next(minTime, maxTime) * 1000; //functional programming :)
-            _spawnTimer = new Timer(async _ => await TrySpawningCarAsync(),
+            _spawnTimer = new Timer(async _ => await SpawnCarAsync(),
                                     null,
                                     spawnTime,
                                     Timeout.Infinite);
@@ -37,7 +33,7 @@ namespace ParkhausRepo.Services
             _spawnTimer?.Dispose();
         }
 
-        private async Task TrySpawningCarAsync()
+        private async Task SpawnCarAsync()
         {
             var parkingLot = await _databaseService.GetParkingLotAsync();
 
@@ -61,7 +57,7 @@ namespace ParkhausRepo.Services
                 availableSpace.CurrentCarID =car.ID;
                 await _databaseService.UpdateParkingSpaceAsync(availableSpace);
 
-                    parkingLot.AvailableSpaces--;
+            parkingLot.AvailableSpaces--;
                 parkingLot.OccupiedSpaces++;
                 await _databaseService.UpdateParkingLotAsync(parkingLot);
 
@@ -72,25 +68,29 @@ namespace ParkhausRepo.Services
 
         public async Task<float> RemoveCarAsync(Car car)
         {
+            
             var parkingSpace = await _databaseService.GetParkingSpaceByID(car.CurrentParkingSpace.Value);
 
             var arrivalTime = car.ArrivalDate;
             var departureTime = DateTime.Now;
+            var parkingDuration = (departureTime - arrivalTime).TotalMinutes;
+            var parkingLot = await _databaseService.GetParkingLotAsync();
 
-            float earnings = (float)(arrivalTime - departureTime) * 0.05f;
+            float earnings = (float) parkingDuration *  parkingLot.PricePerMinute;
             await _databaseService.DeleteCarAsync(car);
 
             parkingSpace.IsOccupied = false;
             parkingSpace.CurrentCarID = null;
             await _databaseService.UpdateParkingSpaceAsync(parkingSpace);
-
-            var parkingLot = await _databaseService.GetParkingLotAsync();
             parkingLot.AvailableSpaces++;
             parkingLot.OccupiedSpaces--;
 
             await _databaseService.UpdateParkingLotAsync(parkingLot);
 
+
+            CarLeft?.Invoke(this, car);
+
             return earnings;
-        }
+        } 
     }
 }
