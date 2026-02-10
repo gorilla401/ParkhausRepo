@@ -18,6 +18,8 @@ namespace ParkhausRepo.Models
 
         public string Color { get; set; }
 
+        public string Brand { get; set; }
+
         public int? CurrentParkingSpace { get; set; }
 
         public int? CurrentParkingFloor { get; set; }
