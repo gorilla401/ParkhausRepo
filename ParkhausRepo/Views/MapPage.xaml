@@ -1,10 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controllers="clr-namespace:ParkhausRepo.Controllers"
+             xmlns:models="clr-namespace:ParkhausRepo.Models"
+             x:Class="ParkhausRepo.Views.MapPage"
+             Title="Map">
 
-namespace ParkhausRepo.Views
-{
-class MapPage
-{
-}
-}
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="12">
+            <Label Text="Map Page" FontSize="24" />
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

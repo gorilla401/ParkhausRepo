@@ -9,19 +9,33 @@ namespace ParkhausRepo.Controllers
 {
     public partial class MapViewModel : ObservableObject
     {
-        private readonly DatabaseService _databaseService = DatabaseService.Instance;
+        private readonly DatabaseService _databaseService;
 
         [ObservableProperty]
-        private ParkingLot? _parkingLot ;
+        private ParkingLot? _parkingLot;
 
         [ObservableProperty]
         private ObservableCollection<ParkingSpace> _parkingSpaces = new();
 
+
+        public MapViewModel(DatabaseService databaseService)
+        {
+            _databaseService = databaseService;
+        }
+
         [RelayCommand]
         private async Task LoadAsync()
         {
-            ParkingLot = await _databaseService.GetParkingLotAsync();
-            ParkingSpaces = new ObservableCollection<ParkingSpace>(await _databaseService.GetAllParkingSpacesAsync());
+            try
+            {
+                ParkingLot = await _databaseService.GetParkingLotAsync();
+                ParkingSpaces = new ObservableCollection<ParkingSpace>(await _databaseService.GetAllParkingSpacesAsync());
+            }
+            catch (Exception ex)
+            {
+
+                System.Diagnostics.Debug.WriteLine($"Error loading parking spaces: {ex.Message}");
+            }
         }
     }
 }

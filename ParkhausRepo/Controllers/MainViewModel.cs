@@ -9,7 +9,7 @@ namespace ParkhausRepo.Controllers
 {
     public partial class MainViewModel : ObservableObject
     {
-        private readonly DatabaseService _databaseService = DatabaseService.Instance;
+            private readonly DatabaseService _databaseService;
 
         [ObservableProperty]
         private ParkingLot? _parkingLot;
@@ -29,21 +29,30 @@ namespace ParkhausRepo.Controllers
         [ObservableProperty]
         private string _message = string.Empty;
 
+        public MainViewModel(DatabaseService databaseService)
+        {
+            _databaseService = databaseService;
+        }
+
+
         [RelayCommand]
         private async Task LoadAsync()
         {
             try
             {
-                _message = "Data successfully loaded";
+                Message = "Loading data...";
+
                 ParkingLot = await _databaseService.GetParkingLotAsync();
                 Cars = new ObservableCollection<Car>(await _databaseService.GetAllCarsAsync());
                 TotalSpaces = ParkingLot?.TotalSpaces ?? 0;
                 OccupiedSpaces = ParkingLot?.OccupiedSpaces ?? 0;
                 AvailableSpaces = TotalSpaces - OccupiedSpaces;
+
+                Message = "Data successfully loaded";
             }
-            catch
+            catch (Exception ex)
             {
-                _message = "Failed to load data";
+                Message = $"Failed to load data: {ex.Message}";
             }
         }
     }

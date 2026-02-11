@@ -1,13 +1,49 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="ParkhausRepo.MainPage">
+             x:Class="ParkhausRepo.Views.MainPage"
+             Title="MainPage">
 
-    <ScrollView>
-        <VerticalStackLayout
-            Padding="30,0"
-            Spacing="25">
-        </VerticalStackLayout>
-    </ScrollView>
+    <Grid RowDefinitions="Auto,*,Auto" Padding="20">
+
+        <Label 
+            Grid.Row="0"
+            Text="Parkhaus Manager"
+            FontSize="32"
+            FontAttributes="Bold"
+            HorizontalOptions="Center"
+            Margin="0,20,0,20"/>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="15">
+
+                <Label 
+                    Text="Welcome to Parkhaus Repository"
+                    FontSize="20"
+                    HorizontalOptions="Center"/>
+
+                <Button 
+                    Text="Load Parking Spaces"
+                    Command="{Binding LoadCommand}"
+                    HorizontalOptions="Center"
+                    WidthRequest="200"/>
+
+                <CollectionView ItemsSource="{Binding ParkingSpaces}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border Margin="5" Padding="10">
+                                <VerticalStackLayout>
+                                    <Label Text="{Binding SpaceNumber, StringFormat='Space: {0}'}" FontSize="18" FontAttributes="Bold"/>
+                                    <Label Text="{Binding SpaceFloor, StringFormat='Floor: {0}'}"/>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+    </Grid>
 
 </ContentPage>

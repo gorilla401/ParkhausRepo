@@ -16,9 +16,10 @@ namespace ParkhausRepo.Models
 
         public DateTime? Departuredate { get; set; }
 
-        public string Color { get; set; }
+        public string? Color { get; set; }
 
-        public string Brand { get; set; }
+        public string? Brand { get; set; }
+
 
         public int? CurrentParkingSpace { get; set; }
 

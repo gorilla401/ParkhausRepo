@@ -1,10 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Microsoft.Maui.Controls;
+using ParkhausRepo.Controllers;
 
 namespace ParkhausRepo.Views
 {
-    internal class MapPage
+    public partial class MapPage : ContentPage
     {
+        public MapPage(MapViewModel viewModel)
+        {
+            InitializeComponent();
+            BindingContext = viewModel;
+        }
     }
 }

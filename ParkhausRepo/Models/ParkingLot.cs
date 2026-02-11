@@ -11,8 +11,8 @@ namespace ParkhausRepo.Entities
         [PrimaryKey, AutoIncrement]
         public int ID { get; set; } = 1; //1 because it's always the same lot
 
-        public string Name { get; set; }
-        public string Adress { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public  string Adress { get; set; } = string.Empty;
 
         public int Floors { get; set; }
         public int TotalSpaces { get; set; }
