@@ -4,7 +4,7 @@
              x:Class="ParkhausRepo.Views.MainPage"
              Title="MainPage">
 
-    <Grid RowDefinitions="Auto,*,Auto" Padding="20">
+    <Grid RowDefinitions="Auto,*" Padding="20">
 
         <Label 
             Grid.Row="0"
@@ -17,25 +17,53 @@
         <ScrollView Grid.Row="1">
             <VerticalStackLayout Spacing="15">
 
-                <Label 
-                    Text="Welcome to Parkhaus Repository"
-                    FontSize="20"
-                    HorizontalOptions="Center"/>
+                <Border Padding="15" StrokeThickness="2" Margin="0,10">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="{Binding ParkingLot.Name}" 
+                               FontSize="24" 
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"/>
+                        <Label Text="{Binding ParkingLot.Adress}" 
+                               FontSize="16"
+                               HorizontalOptions="Center"/>
+                        
+                        <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10" Margin="0,10,0,0">
+                            <Label Grid.Row="0" Grid.Column="0" Text="Total Spaces" HorizontalOptions="Center"/>
+                            <Label Grid.Row="1" Grid.Column="0" Text="{Binding TotalSpaces}" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center"/>
+                            
+                            <Label Grid.Row="0" Grid.Column="1" Text="Occupied" HorizontalOptions="Center"/>
+                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding OccupiedSpaces}" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center" TextColor="Red"/>
+                            
+                            <Label Grid.Row="0" Grid.Column="2" Text="Available" HorizontalOptions="Center"/>
+                            <Label Grid.Row="1" Grid.Column="2" Text="{Binding AvailableSpaces}" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center" TextColor="Green"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
 
-                <Button 
-                    Text="Load Parking Spaces"
-                    Command="{Binding LoadCommand}"
-                    HorizontalOptions="Center"
-                    WidthRequest="200"/>
+                <Label Text="{Binding Message}" 
+                       FontSize="14"
+                       HorizontalOptions="Center"
+                       TextColor="Gray"/>
 
-                <CollectionView ItemsSource="{Binding ParkingSpaces}">
+                <Label Text="Current Cars" FontSize="20" FontAttributes="Bold" Margin="0,10,0,0"/>
+                
+                <CollectionView ItemsSource="{Binding Cars}">
+                    <CollectionView.EmptyView>
+                        <Label Text="No cars parked yet. Waiting for cars to arrive..." 
+                               HorizontalOptions="Center"
+                               Margin="20"
+                               TextColor="Gray"/>
+                    </CollectionView.EmptyView>
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <Border Margin="5" Padding="10">
-                                <VerticalStackLayout>
-                                    <Label Text="{Binding SpaceNumber, StringFormat='Space: {0}'}" FontSize="18" FontAttributes="Bold"/>
-                                    <Label Text="{Binding SpaceFloor, StringFormat='Floor: {0}'}"/>
-                                </VerticalStackLayout>
+                            <Border Margin="5" Padding="10" StrokeThickness="1">
+                                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto">
+                                    <Label Grid.Row="0" Grid.Column="0" Text="{Binding Brand, StringFormat='Brand: {0}'}" FontAttributes="Bold"/>
+                                    <Label Grid.Row="0" Grid.Column="1" Text="{Binding NumberPlate, StringFormat='Plate: {0}'}"/>
+                                    <Label Grid.Row="1" Grid.Column="0" Text="{Binding Color, StringFormat='Color: {0}'}"/>
+                                    <Label Grid.Row="1" Grid.Column="1" Text="{Binding CurrentParkingSpace, StringFormat='Space: {0}'}"/>
+                                    <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding ArrivalDate, StringFormat='Arrived: {0:g}'}"/>
+                                </Grid>
                             </Border>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>

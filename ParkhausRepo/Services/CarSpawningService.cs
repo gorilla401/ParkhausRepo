@@ -29,6 +29,27 @@ namespace ParkhausRepo.Services
                                     Timeout.Infinite);
         }
 
+        public void StartRemoving(int minTime = 7, int maxTime = 18)
+        {
+            int removeTime = _random.Next(minTime, maxTime) * 1000;
+            _spawnTimer = new Timer(async _ =>
+            {
+                var parkingLot = await _databaseService.GetParkingLotAsync();
+                if (parkingLot != null && parkingLot.OccupiedSpaces > 0)
+                {
+                    var cars = await _databaseService.GetAllCarsAsync();
+                    if (cars.Any())
+                    {
+                        var carToRemove = cars[_random.Next(cars.Count)];
+                        await RemoveCarAsync(carToRemove);
+                    }
+                }
+            },
+            null,
+            removeTime,
+            Timeout.Infinite);
+        }
+
         public void StopSpawning()
         {
             _spawnTimer?.Dispose();
@@ -88,7 +109,7 @@ namespace ParkhausRepo.Services
                 throw new InvalidOperationException("Car does not have a parking space assigned.");
             }
 
-            var parkingSpace = await _databaseService.GetParkingSpaceByID(car.CurrentParkingSpace.Value);
+            var parkingSpace = await _databaseService.GetParkingSpaceAsync(car.CurrentParkingSpace.Value);
 
             if (parkingSpace == null)
             {
@@ -114,6 +135,7 @@ namespace ParkhausRepo.Services
 
             parkingLot.AvailableSpaces++;
             parkingLot.OccupiedSpaces--;
+            parkingLot.TotalEarnings += earnings;
             await _databaseService.UpdateParkingLotAsync(parkingLot);
 
             CarLeft?.Invoke(this, car);

@@ -4,12 +4,129 @@
              xmlns:controllers="clr-namespace:ParkhausRepo.Controllers"
              xmlns:models="clr-namespace:ParkhausRepo.Models"
              x:Class="ParkhausRepo.Views.MapPage"
-             Title="Map">
+             Title="Parking Map">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="12">
-            <Label Text="Map Page" FontSize="24" />
-        </VerticalStackLayout>
-    </ScrollView>
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="20">
+
+        <Label 
+            Grid.Row="0"
+            Text="Parking Map"
+            FontSize="32"
+            FontAttributes="Bold"
+            HorizontalOptions="Center"
+            Margin="0,20,0,10"/>
+
+        <Border Grid.Row="1" 
+                Padding="18" 
+                Margin="0,10">
+            <Grid ColumnDefinitions="*,Auto,*" 
+                  RowDefinitions="Auto,Auto">
+                
+                <Label Grid.Row="0" 
+                       Grid.Column="0" 
+                       Grid.ColumnSpan="3"
+                       Text="{Binding ParkingLot.Name}" 
+                       FontSize="20" 
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"
+                       Margin="0,0,0,10"/>
+
+                <Label Grid.Row="0" 
+                Grid.Column="0" 
+                Grid.ColumnSpan="3"
+                Text="{Binding TotalEarnings, StringFormat='Total Earnings: ${0:F2}'}" 
+                FontSize="20" 
+                HorizontalOptions="Center"
+                Margin="20"/>
+
+                <Button Grid.Row="1" 
+                        Grid.Column="0"
+                        Text="◄ Down"
+                        Command="{Binding PreviousFloorCommand}"
+                        IsEnabled="{Binding CanGoDown}"
+                        HorizontalOptions="Start"
+                        WidthRequest="100"/>
+                
+                <Label Grid.Row="1" 
+                       Grid.Column="1"
+                       Text="{Binding CurrentFloor, StringFormat='Floor {0}'}" 
+                       FontSize="24" 
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       Margin="20,0"/>
+                
+                <Button Grid.Row="1" 
+                        Grid.Column="2"
+                        Text="Up ►"
+                        Command="{Binding NextFloorCommand}"
+                        IsEnabled="{Binding CanGoUp}"
+                        HorizontalOptions="End"
+                        WidthRequest="100"/>
+            </Grid>
+        </Border>
+
+        <ScrollView Grid.Row="2" Margin="0,20,0,0">
+            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,*,*,*,*" RowSpacing="10" ColumnSpacing="10">
+                
+                <HorizontalStackLayout Grid.Row="0" Grid.ColumnSpan="5" 
+                                      HorizontalOptions="Center" 
+                                      Spacing="30"
+                                      Margin="0,0,0,20">
+                    <HorizontalStackLayout Spacing="5">
+                        <BoxView Color="#51CF66" 
+                                WidthRequest="20" 
+                                HeightRequest="20" 
+                                CornerRadius="3"/>
+                        <Label Text="Available" VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="5">
+                        <BoxView Color="#FF6B6B" 
+                                WidthRequest="20" 
+                                HeightRequest="20" 
+                                CornerRadius="3"/>
+                        <Label Text="Occupied" VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                </HorizontalStackLayout>
+
+                <CollectionView Grid.Row="1" 
+                               Grid.ColumnSpan="5"
+                               ItemsSource="{Binding CurrentFloorSpaces}">
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout Orientation="Vertical" 
+                                        Span="5"
+                                        HorizontalItemSpacing="10"
+                                        VerticalItemSpacing="10"/>
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border Padding="10" 
+                                   StrokeThickness="2"
+                                   Stroke="Gray"
+                                   BackgroundColor="{Binding BackgroundColor}"
+                                   HeightRequest="80">
+                                <VerticalStackLayout Spacing="5" 
+                                                    VerticalOptions="Center">
+                                    <Label Text="{Binding Space.SpaceNumber, StringFormat='#{0}'}" 
+                                          FontSize="12" 
+                                          FontAttributes="Bold"
+                                          HorizontalOptions="Center"
+                                          TextColor="White"/>
+                                    <Label Text="{Binding DisplayText}" 
+                                          FontSize="10"
+                                          HorizontalOptions="Center"
+                                          HorizontalTextAlignment="Center"
+                                          TextColor="White"
+                                          LineBreakMode="WordWrap"/>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                
+            </Grid>
+        </ScrollView>
+
+    </Grid>
 
 </ContentPage>

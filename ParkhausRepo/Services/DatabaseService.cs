@@ -1,5 +1,4 @@
-﻿using ParkhausRepo.Entities;
-using ParkhausRepo.Models;
+﻿using ParkhausRepo.Models;  // Changed from Entities
 using SQLite;
 using System;
 using System.Collections.Generic;
@@ -11,7 +10,7 @@ namespace ParkhausRepo.Services
     {
         private SQLiteAsyncConnection? _database;
         private bool _isInitialized = false;
-         private readonly SemaphoreSlim _initLock = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim _initLock = new SemaphoreSlim(1, 1);
 
         // Singleton instance for backward compatibility
         private static DatabaseService? _instance;
@@ -67,7 +66,7 @@ namespace ParkhausRepo.Services
             }
         }
 
-        // Create the Parking lot
+        // Create the Parking lot and parking spaces
         private async Task CreateParkingLotAsync()
         {
             if (_database == null)
@@ -88,6 +87,128 @@ namespace ParkhausRepo.Services
                     IsOpen = true
                 };
                 await _database.InsertAsync(parkingLot);
+
+                // Create initial parking spaces (80 spaces across 4 floors)
+                await CreateInitialParkingSpacesAsync();
+                
+                // Create default cars
+                await CreateDefaultCarsAsync();
+            }
+        }
+
+        private async Task CreateDefaultCarsAsync()
+        {
+            if (_database == null)
+                throw new InvalidOperationException("Database not initialized");
+
+            // Check if cars already exist
+            var existingCars = await _database.Table<Car>().CountAsync();
+            if (existingCars > 0)
+                return;
+
+            // Create 5 default cars
+            var defaultCars = new List<Car>
+            {
+                new Car
+                {
+                    NumberPlate = 1234,
+                    Color = "Red",
+                    Brand = "BMW",
+                    ArrivalDate = DateTime.Now.AddHours(-2),
+                    CurrentParkingFloor = 1
+                },
+                new Car
+                {
+                    NumberPlate = 5678,
+                    Color = "Blue",
+                    Brand = "Mercedes",
+                    ArrivalDate = DateTime.Now.AddHours(-5),
+                    CurrentParkingFloor = 1
+                },
+                new Car
+                {
+                    NumberPlate = 9012,
+                    Color = "Black",
+                    Brand = "VW",
+                    ArrivalDate = DateTime.Now.AddHours(-1),
+                    CurrentParkingFloor = 2
+                },
+                new Car
+                {
+                    NumberPlate = 3456,
+                    Color = "Green",
+                    Brand = "Honda",
+                    ArrivalDate = DateTime.Now.AddHours(-3),
+                    CurrentParkingFloor = 2
+                },
+                new Car
+                {
+                    NumberPlate = 7890,
+                    Color = "Red",
+                    Brand = "VW",
+                    ArrivalDate = DateTime.Now.AddHours(-4),
+                    CurrentParkingFloor = 3
+                }
+            };
+
+            // Get the first 5 available parking spaces
+            var availableSpaces = await _database.Table<ParkingSpace>()
+                .Where(s => !s.IsOccupied)
+                .Take(5)
+                .ToListAsync();
+
+            // Assign parking spaces to cars and insert them
+            for (int i = 0; i < defaultCars.Count && i < availableSpaces.Count; i++)
+            {
+                var car = defaultCars[i];
+                var space = availableSpaces[i];
+
+                car.CurrentParkingSpace = space.ID;
+                car.CurrentParkingFloor = space.SpaceFloor;
+
+                await _database.InsertAsync(car);
+
+                // Mark the space as occupied
+                space.IsOccupied = true;
+                space.CurrentCarID = car.ID;
+                await _database.UpdateAsync(space);
+            }
+
+            // Update parking lot statistics
+            var parkingLot = await _database.Table<ParkingLot>().FirstOrDefaultAsync();
+            if (parkingLot != null)
+            {
+                parkingLot.OccupiedSpaces = defaultCars.Count;
+                parkingLot.AvailableSpaces = parkingLot.TotalSpaces - defaultCars.Count;
+                await _database.UpdateAsync(parkingLot);
+            }
+        }
+
+        private async Task CreateInitialParkingSpacesAsync()
+        {
+            if (_database == null)
+                throw new InvalidOperationException("Database not initialized");
+
+            var existingSpaces = await _database.Table<ParkingSpace>().CountAsync();
+            if (existingSpaces > 0)
+                return;
+
+            
+            int spacesPerFloor = 20;
+            int totalFloors = 4;
+
+            for (int floor = 1; floor <= totalFloors; floor++)
+            {
+                for (int spaceNum = 1; spaceNum <= spacesPerFloor; spaceNum++)
+                {
+                    var parkingSpace = new ParkingSpace
+                    {
+                        SpaceNumber = ((floor - 1) * spacesPerFloor) + spaceNum,
+                        SpaceFloor = floor,
+                        IsOccupied = false,
+                    };
+                    await _database.InsertAsync(parkingSpace);
+                }
             }
         }
 
@@ -120,16 +241,6 @@ namespace ParkhausRepo.Services
             return await _database.Table<ParkingSpace>().ToListAsync();
         }
 
-        public async Task<ParkingSpace> GetParkingSpaceByID(int id)
-        {
-            await InitializeAsync();
-            if (_database == null)
-                throw new InvalidOperationException("Database not initialized");
-
-            var space = await _database.Table<ParkingSpace>().Where(s => s.ID == id).FirstOrDefaultAsync();
-            return space;
-        }
-
         public async Task<ParkingSpace> GetParkingSpaceAsync(int id)
         {
             await InitializeAsync();
@@ -145,7 +256,15 @@ namespace ParkhausRepo.Services
             if (_database == null)
                 throw new InvalidOperationException("Database not initialized");
 
-            return await _database.Table<ParkingSpace>().Where(s => !s.IsOccupied).FirstOrDefaultAsync();
+            var availableSpaces = await _database.Table<ParkingSpace>()
+                .Where(s => !s.IsOccupied)
+                .ToListAsync();
+
+            if (availableSpaces.Count == 0)
+                return null;
+
+            var random = new Random();
+            return availableSpaces[random.Next(availableSpaces.Count)];
         }
 
         public async Task<int> UpdateParkingSpaceAsync(ParkingSpace parkingSpace)
